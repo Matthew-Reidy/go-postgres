@@ -1,21 +1,13 @@
-package src
+package operations
 
-type credentials struct {
-	username string
-	password string
-	host     string
-	port     int
+type Credentials struct {
+	Username  string
+	Password  string
+	Host      string
+	Port      int
+	SSlConfig *SSL
 }
 
-type ssl_credentials struct {
-	username string
-	password string
-	host     string
-	port     int
-	ssl      *ssl
-}
-
-type ssl struct {
-	certificate string
-	key         string
+type SSL struct {
+	Certificate string
 }

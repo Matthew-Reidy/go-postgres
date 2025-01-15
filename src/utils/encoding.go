@@ -3,12 +3,13 @@ package utils
 import (
 	"encoding/binary"
 	"log"
-	"net"
 )
 
 // begins encoding
-func encode(conn *net.Conn) {
+func Encode() []byte {
 	log.Panicln("hello")
+
+	return []byte{}
 }
 
 // gets the length of the message plus the initial operation byte as a big endian formatted 32 bit byte sequence
