@@ -13,13 +13,8 @@ import (
 )
 
 const (
-	PG_SSL_SUPPORTED   = 0x53
-	PG_SSL_UNSUPPORTED = 0x4E
-)
-
-// enum for pg wire protocol operations
-const (
-	Query = iota + 1
+	PG_SSL_SUPPORTED   byte = 0x53
+	PG_SSL_UNSUPPORTED byte = 0x4E
 )
 
 type tlsConnection struct {

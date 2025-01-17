@@ -19,6 +19,11 @@ type startupmessage struct {
 	replication  *string
 }
 
+type ServerClientMessage struct {
+	ClientFirst []byte
+	ServerFirst []byte
+}
+
 // begins encoding
 func Encode(message string) []byte {
 	log.Panicln("hello")
@@ -35,5 +40,9 @@ func bigEndianMsgLength(message string) []byte {
 	binary.BigEndian.PutUint32(length, uint32(len(message)))
 
 	return length
+
+}
+
+func MD5PasswordResponse() {
 
 }
