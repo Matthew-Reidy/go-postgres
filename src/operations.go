@@ -82,9 +82,15 @@ func Connect(connectionConfig *Credentials) (*tlsConnection, error) {
 		tlsConn := establishTLSConnection(&conn, connectionConfig)
 
 		//placeholder for now
-		start_up := []byte{0x0, 0x0, 0x00, 0x10, 0x03, 0x00, 0x00, 0x00, 'p', 'o', 's', 't', 'g', 'r', 'e', 's'}
+		start_up := []byte{0x00, 0x00, 0x00, 0x17, 0x00, 0x03, 0x00, 0x00, 'u', 's', 'e', 'r', 0x00, 'p', 'o', 's', 't', 'g', 'r', 'e', 's', 0x00, 0x00}
+
+		b := make([]byte, 150)
 
 		tlsConn.Write(start_up)
+
+		tlsConn.Read(b)
+
+		log.Println(b)
 
 		return &tlsConnection{tlsConn}, nil
 
@@ -102,7 +108,7 @@ func establishTLSConnection(conn *net.Conn, credentials *Credentials) *tls.Conn 
 	cert, err := loadCertificates(credentials.SSlConfig.Certificate)
 
 	if err != nil {
-		log.Fatalf("FATAL! : %x\n", err)
+		log.Fatalf("FATAL! CANT LOAD CERTIFICATE: %x\n", err)
 	}
 
 	tlsConn := tls.Client(*conn, &tls.Config{ServerName: credentials.Host,
@@ -115,8 +121,8 @@ func establishTLSConnection(conn *net.Conn, credentials *Credentials) *tls.Conn 
 
 // sends query to the postgres server and recieves a response
 func (conn *tlsConnection) Query(queryString string) ([]byte, error) {
-
-	message := utils.Encode()
+	operation := "Q"
+	message := utils.Encode(operation + queryString)
 
 	_, err := conn.Write(message)
 
@@ -127,4 +133,20 @@ func (conn *tlsConnection) Query(queryString string) ([]byte, error) {
 	}
 
 	return []byte{}, nil
+}
+
+func (conn *tlsConnection) Disconnect() {
+
+	//terminates the session server side
+	b := []byte{'X', 0x00, 0x00, 0x00, 0x05}
+
+	conn.Write(b)
+
+	//terminates the actual connection
+	err := conn.Close()
+
+	if err != nil {
+		log.Panic(err)
+	}
+
 }

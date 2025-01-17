@@ -3,22 +3,23 @@ package main
 import (
 	"log"
 
-	operations "github.com/Matthew-Reidy/go-postgres/src"
+	pg "github.com/Matthew-Reidy/go-postgres/src"
 )
 
 func main() {
 
-	connConfig := &operations.Credentials{
+	connConfig := &pg.Credentials{
 		Username: "hello",
 		Password: "world",
+		Database: "mydb",
 		Host:     "myhost",
 		Port:     5432,
-		SSlConfig: &operations.SSL{
+		SSlConfig: &pg.SSL{
 			Certificate: "some/path/way/cert.pem",
 		},
 	}
 
-	conn, err := operations.Connect(connConfig)
+	conn, err := pg.Connect(connConfig)
 
 	defer conn.Close()
 
@@ -33,5 +34,7 @@ func main() {
 	}
 
 	//...do something with the data WIP
+
+	conn.Disconnect()
 
 }

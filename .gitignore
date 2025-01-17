@@ -26,3 +26,6 @@ go.work.sum
 
 #other
 .DS_Store
+
+#for local testing by me
+/tests/global-bundle.pem
