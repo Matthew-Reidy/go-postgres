@@ -12,16 +12,30 @@ type querymessage struct {
 }
 
 type startupmessage struct {
-	length       []byte
-	protocol_ver []byte
+	length       int
+	protocol_ver int
 	username     string
 	database     *string
 	replication  *string
 }
 
-type ServerClientMessage struct {
-	ClientFirst []byte
-	ServerFirst []byte
+type clientFirstMessage struct {
+	header      byte
+	username    string
+	clientNonce string
+}
+
+type serverFirstMessage struct {
+	serverNonce    string
+	salt           string
+	iterationCount int
+}
+
+type clientFinalMessage struct {
+	channelBinding string
+	header         string
+	nonceConcat    string
+	clientProof    byte
 }
 
 // begins encoding

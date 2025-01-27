@@ -75,7 +75,3 @@ func SCRAMKeys(password string, salt string) (string, string) {
 
 	return clientKey, serverKey
 }
-
-func generateAuthValue(clientServerFirsts *ServerClientMessage) []byte {
-
-}
