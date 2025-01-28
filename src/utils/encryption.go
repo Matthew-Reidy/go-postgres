@@ -46,32 +46,38 @@ func generateClientNonce() (string, error) {
 	return base64.StdEncoding.EncodeToString(bytes), nil
 }
 
-// client proof as described by
-func SCRAMKeys(password string, salt string) (string, string) {
-	clientKey := ""
-	serverKey := ""
+func password_salter(iterations int, password string, salt string) string {
+	saltedpw := []byte{}
 
-	key := []byte(password + salt)
+	initHash := hmac.New(sha256.New, []byte(password))
+
+	initHash.Write([]byte(salt))
+
+	saltedpw = initHash.Sum(nil)
+
+	for i := 2; i <= iterations; i++ {
+		iterHash := hmac.New(sha256.New, []byte(password))
+		iterHash.Write(saltedpw)
+		saltedpw = iterHash.Sum(nil)
+	}
+
+	return hex.EncodeToString(saltedpw)
+
+}
+
+// client proof as described by
+func SCRAMClientKey(saltedPassword string) string {
+	clientKey := ""
+
+	key := []byte(saltedPassword)
 
 	hmac := hmac.New(sha256.New, key)
 
-	for i := range 2 {
-		if i%2 == 0 {
-			hmac.Write([]byte("Client Key"))
+	hmac.Write([]byte("Client Key"))
 
-			clientKey = string(hmac.Sum(nil))
+	clientKey = string(hmac.Sum(nil))
 
-			hmac.Reset()
+	hmac.Reset()
 
-			continue
-		}
-		hmac.Write([]byte("Server Key"))
-
-		clientKey = string(hmac.Sum(nil))
-
-		hmac.Reset()
-
-	}
-
-	return clientKey, serverKey
+	return clientKey
 }
