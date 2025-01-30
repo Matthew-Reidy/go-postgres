@@ -46,16 +46,16 @@ func generateClientNonce() (string, error) {
 	return base64.StdEncoding.EncodeToString(bytes), nil
 }
 
-func password_salter(iterations int, password string, salt string) string {
+func saltShaker(serverFirst *ServerFirstMessage, password string) string {
 	saltedpw := []byte{}
 
 	initHash := hmac.New(sha256.New, []byte(password))
 
-	initHash.Write([]byte(salt))
+	initHash.Write([]byte(serverFirst.Salt))
 
 	saltedpw = initHash.Sum(nil)
 
-	for i := 2; i <= iterations; i++ {
+	for i := 2; i <= serverFirst.IterationCount; i++ {
 		iterHash := hmac.New(sha256.New, []byte(password))
 		iterHash.Write(saltedpw)
 		saltedpw = iterHash.Sum(nil)
@@ -67,7 +67,7 @@ func password_salter(iterations int, password string, salt string) string {
 
 // client proof as described by
 func SCRAMClientKey(saltedPassword string) string {
-	clientKey := ""
+	clientKey := []byte{}
 
 	key := []byte(saltedPassword)
 
@@ -75,9 +75,9 @@ func SCRAMClientKey(saltedPassword string) string {
 
 	hmac.Write([]byte("Client Key"))
 
-	clientKey = string(hmac.Sum(nil))
+	clientKey = hmac.Sum(nil)
 
 	hmac.Reset()
 
-	return clientKey
+	return hex.EncodeToString(clientKey)
 }

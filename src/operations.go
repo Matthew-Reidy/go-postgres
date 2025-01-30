@@ -9,7 +9,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/Matthew-Reidy/go-postgres/src/utils"
+	pgtypes "github.com/Matthew-Reidy/go-postgres/src/types"
+	utils "github.com/Matthew-Reidy/go-postgres/src/utils"
 )
 
 const (
@@ -44,7 +45,7 @@ func loadCertificates(certPath string) (*x509.CertPool, error) {
 
 // establishes as standard tcp connection to the server
 // go-postgres then begins start up routine with the postgres server
-func Connect(connectionConfig *Credentials) (*tlsConnection, error) {
+func Connect(connectionConfig *pgtypes.Credentials) (*tlsConnection, error) {
 
 	host := fmt.Sprintf("%v:%d", connectionConfig.Host, connectionConfig.Port)
 
@@ -76,16 +77,7 @@ func Connect(connectionConfig *Credentials) (*tlsConnection, error) {
 
 		tlsConn := establishTLSConnection(&conn, connectionConfig)
 
-		//placeholder for now
-		start_up := []byte{0x00, 0x00, 0x00, 0x17, 0x00, 0x03, 0x00, 0x00, 'u', 's', 'e', 'r', 0x00, 'p', 'o', 's', 't', 'g', 'r', 'e', 's', 0x00, 0x00}
-
-		b := make([]byte, 150)
-
-		tlsConn.Write(start_up)
-
-		tlsConn.Read(b)
-
-		log.Println(b)
+		utils.Encode(connectionConfig, "startup", tlsConn)
 
 		return &tlsConnection{tlsConn}, nil
 
@@ -98,7 +90,7 @@ func Connect(connectionConfig *Credentials) (*tlsConnection, error) {
 }
 
 // performs tls handshake
-func establishTLSConnection(conn *net.Conn, credentials *Credentials) *tls.Conn {
+func establishTLSConnection(conn *net.Conn, credentials *pgtypes.Credentials) *tls.Conn {
 
 	cert, err := loadCertificates(credentials.SSlConfig.Certificate)
 
@@ -116,8 +108,10 @@ func establishTLSConnection(conn *net.Conn, credentials *Credentials) *tls.Conn 
 
 // sends query to the postgres server and recieves a response
 func (conn *tlsConnection) Query(queryString string) ([]byte, error) {
+
 	operation := "Q"
-	message := utils.Encode(operation + queryString)
+
+	message := utils.Encode(operation+queryString, operation, conn.Conn)
 
 	_, err := conn.Write(message)
 

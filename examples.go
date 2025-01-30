@@ -4,17 +4,18 @@ import (
 	"log"
 
 	pg "github.com/Matthew-Reidy/go-postgres/src"
+	pgtypes "github.com/Matthew-Reidy/go-postgres/src/types"
 )
 
 func main() {
 
-	connConfig := &pg.Credentials{
+	connConfig := &pgtypes.Credentials{
 		Username: "hello",
 		Password: "world",
 		Database: "mydb",
 		Host:     "myhost",
 		Port:     5432,
-		SSlConfig: &pg.SSL{
+		SSlConfig: &pgtypes.SSL{
 			Certificate: "some/path/way/cert.pem",
 		},
 	}

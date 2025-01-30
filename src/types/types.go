@@ -1,4 +1,4 @@
-package operations
+package pgtypes
 
 type Credentials struct {
 	Username  string
