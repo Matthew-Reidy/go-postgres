@@ -55,7 +55,7 @@ func saltShaker(serverFirst *ServerFirstMessage, password string) string {
 
 	saltedpw = initHash.Sum(nil)
 
-	for i := 2; i <= serverFirst.IterationCount; i++ {
+	for i := 1; i <= serverFirst.IterationCount; i++ {
 		iterHash := hmac.New(sha256.New, []byte(password))
 		iterHash.Write(saltedpw)
 		saltedpw = iterHash.Sum(nil)

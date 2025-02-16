@@ -3,6 +3,7 @@ package utils
 import (
 	"crypto/tls"
 	"encoding/binary"
+	"fmt"
 	"log"
 
 	pgtypes "github.com/Matthew-Reidy/go-postgres/src/types"
@@ -26,12 +27,6 @@ type clientFirstMessage struct {
 	header      byte
 	username    string
 	clientNonce string
-}
-
-type ServerFirstMessage struct {
-	ServerNonce    string
-	Salt           string
-	IterationCount int
 }
 
 type clientFinalMessage struct {
@@ -89,7 +84,7 @@ func MD5PasswordRoutine() {
 }
 
 func SCRAMRoutine() {
-
+	fmt.Println("starting scram")
 }
 
 func signIn(message *pgtypes.Credentials) {
@@ -99,11 +94,11 @@ func signIn(message *pgtypes.Credentials) {
 
 	start_up = append(start_up, []byte("user")...)
 
-	start_up = append(start_up, 0x00)
+	start_up = append(start_up, 0)
 
 	start_up = append(start_up, []byte(message.Database)...)
 
-	start_up = append(start_up, 0x00, 0x00)
+	start_up = append(start_up, 0, 0)
 
 	start_up = append(bigEndianMsgConverter(uint32(len(start_up)+4)), start_up...)
 
@@ -115,16 +110,8 @@ func signIn(message *pgtypes.Credentials) {
 
 	globalConn.Read(b)
 
-	log.Println(string(b))
+	fmt.Println(b)
 
-	authOptions := string(b)
+	Decode("AuthOptions", b)
 
-	if authOptions == "R* SCRAM-SHA-256-PLUSSCRAM-SHA-256" {
-		SCRAMRoutine()
-	} else if authOptions == "MD5" {
-		MD5PasswordRoutine()
-	} else {
-		//plaintext password auth...not implemented
-		return
-	}
 }
