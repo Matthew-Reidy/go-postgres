@@ -1,4 +1,4 @@
-package utils
+package message
 
 import (
 	"crypto/tls"
@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"log"
 
-	pgtypes "github.com/Matthew-Reidy/go-postgres/src/types"
+	pgtypes "github.com/Matthew-Reidy/go-postgres/types"
 )
 
 type querymessage struct {

@@ -1,4 +1,4 @@
-package operations
+package postgres
 
 import (
 	"crypto/tls"
@@ -9,8 +9,8 @@ import (
 	"os"
 	"time"
 
-	pgtypes "github.com/Matthew-Reidy/go-postgres/src/types"
-	utils "github.com/Matthew-Reidy/go-postgres/src/utils"
+	msg "github.com/Matthew-Reidy/go-postgres/internal/message"
+	pgtypes "github.com/Matthew-Reidy/go-postgres/types"
 )
 
 const (
@@ -77,12 +77,12 @@ func Connect(connectionConfig *pgtypes.Credentials) (*tlsConnection, error) {
 
 		tlsConn := establishTLSConnection(&conn, connectionConfig)
 
-		utils.Encode(connectionConfig, "startup", tlsConn)
+		msg.Encode(connectionConfig, "startup", tlsConn)
 
 		return &tlsConnection{tlsConn}, nil
 
 	}
-
+	fmt.Println("SSL not supported by server...closing connection and returning error")
 	//if ssl is not supported close the connection
 	conn.Close()
 	//and return error...
@@ -99,7 +99,7 @@ func establishTLSConnection(conn *net.Conn, credentials *pgtypes.Credentials) *t
 	}
 
 	tlsConn := tls.Client(*conn, &tls.Config{ServerName: credentials.Host,
-		RootCAs:    cert,
+		RootCAs:    nil,
 		MinVersion: tls.VersionTLS12,
 		MaxVersion: tls.VersionTLS13})
 
@@ -111,7 +111,7 @@ func (conn *tlsConnection) Query(queryString string) ([]byte, error) {
 
 	operation := "Q"
 
-	message := utils.Encode(operation+queryString, operation, conn.Conn)
+	message := msg.Encode(operation+queryString, operation, conn.Conn)
 
 	_, err := conn.Write(message)
 
@@ -126,7 +126,7 @@ func (conn *tlsConnection) Query(queryString string) ([]byte, error) {
 
 func (conn *tlsConnection) Disconnect() {
 
-	//terminates the session server side
+	//terminates the session database side
 	b := []byte{'X', 0x00, 0x00, 0x00, 0x05}
 
 	conn.Write(b)

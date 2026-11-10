@@ -1,10 +1,10 @@
-package operations_test
+package postgres_test
 
 import (
 	"testing"
 
-	pg "github.com/Matthew-Reidy/go-postgres/src"
-	pgtypes "github.com/Matthew-Reidy/go-postgres/src/types"
+	pg "github.com/Matthew-Reidy/go-postgres"
+	pgtypes "github.com/Matthew-Reidy/go-postgres/types"
 )
 
 func TestConnection(t *testing.T) {

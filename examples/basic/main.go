@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	pg "github.com/Matthew-Reidy/go-postgres/src"
-	pgtypes "github.com/Matthew-Reidy/go-postgres/src/types"
+	pg "github.com/Matthew-Reidy/go-postgres"
+	pgtypes "github.com/Matthew-Reidy/go-postgres/types"
 )
 
 func main() {
@@ -22,20 +22,18 @@ func main() {
 
 	conn, err := pg.Connect(connConfig)
 
-	defer conn.Close()
+	defer conn.Disconnect()
 
 	if err != nil {
 		log.Fatalf("FATAL! : %x", err)
 	}
 
-	data, err := conn.Query("select * from users;")
+	data, err := conn.Query("select * from my_table;")
 
 	if err != nil {
 		log.Panic(err)
 	}
 
 	//...do something with the data WIP
-
-	conn.Disconnect()
 
 }
