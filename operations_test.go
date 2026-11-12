@@ -9,21 +9,29 @@ import (
 
 func TestConnection(t *testing.T) {
 
+	// connConfig := &pgtypes.Credentials{
+	// 	Username: "postgres",
+	// 	Password: "mypw",
+	// 	Database: "postgres",
+	// 	Host:     "mytestdb.ceg3kwpf6czu.us-west-1.rds.amazonaws.com",
+	// 	Port:     5432,
+	// 	SSlConfig: &pgtypes.SSL{
+	// 		Certificate: "global-bundle.pem",
+	// 	},
+	// }
+
 	connConfig := &pgtypes.Credentials{
 		Username: "postgres",
 		Password: "mypw",
 		Database: "postgres",
-		Host:     "mytestdb.ceg3kwpf6czu.us-west-1.rds.amazonaws.com",
+		Host:     "localhost",
 		Port:     5432,
-		SSlConfig: &pgtypes.SSL{
-			Certificate: "global-bundle.pem",
-		},
 	}
 
 	_, err := pg.Connect(connConfig)
 
 	if err != nil {
-		t.Fatalf("An error occured! %x", err)
+		t.Fatalf("An error occured! %s", err)
 	}
 
 }

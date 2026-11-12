@@ -1,10 +1,8 @@
 package message
 
 import (
-	"crypto/tls"
 	"encoding/binary"
 	"fmt"
-	"log"
 
 	pgtypes "github.com/Matthew-Reidy/go-postgres/types"
 )
@@ -46,25 +44,35 @@ const (
 	AUTH_RESP = 'p'
 )
 
-var (
-	globalConn *tls.Conn
-)
-
-// begins encoding
-func Encode(message any, messageType string, conn *tls.Conn) []byte {
-	globalConn = conn
+// Encode builds the wire-format bytes for a message. It performs no I/O,
+// so callers own the connection and are free to use it concurrently.
+func Encode(message any, messageType any) ([]byte, error) {
 
 	switch messageType {
 
-	case "startup":
+	case pgtypes.STARTUP:
 
-		signIn(message.(*pgtypes.Credentials))
+		creds, ok := message.(*pgtypes.Credentials)
 
-	case "query":
+		if !ok || creds == nil {
+			return nil, fmt.Errorf("startup message requires *types.Credentials")
+		}
+
+		return startupMessage(creds), nil
+
+	case pgtypes.QUERY:
+
+		query, ok := message.(string)
+
+		if !ok {
+			return nil, fmt.Errorf("query message requires a string")
+		}
+
+		return queryMessage(query), nil
 
 	}
 
-	return []byte{}
+	return nil, fmt.Errorf("unknown message type %q", messageType)
 }
 
 // gets the length of the message plus the initial operation byte as a big endian formatted 32 bit byte sequence
@@ -87,31 +95,31 @@ func SCRAMRoutine() {
 	fmt.Println("starting scram")
 }
 
-func signIn(message *pgtypes.Credentials) {
-	start_up := []byte{}
+// startup message: int32 length, int32 protocol 3.0, then null terminated key/value pairs
+func startupMessage(creds *pgtypes.Credentials) []byte {
 
-	start_up = append(start_up, bigEndianMsgConverter(uint32(196608))...)
+	body := bigEndianMsgConverter(uint32(196608))
 
-	start_up = append(start_up, []byte("user")...)
+	for _, kv := range [][2]string{{"user", creds.Username}, {"database", creds.Database}} {
+		body = append(body, kv[0]...)
+		body = append(body, 0)
+		body = append(body, kv[1]...)
+		body = append(body, 0)
+	}
 
-	start_up = append(start_up, 0)
+	body = append(body, 0)
 
-	start_up = append(start_up, []byte(message.Database)...)
+	return append(bigEndianMsgConverter(uint32(len(body)+4)), body...)
+}
 
-	start_up = append(start_up, 0, 0)
+// simple query message: 'Q', int32 length, null terminated query string
+func queryMessage(query string) []byte {
 
-	start_up = append(bigEndianMsgConverter(uint32(len(start_up)+4)), start_up...)
+	msg := []byte{'Q'}
 
-	log.Println(start_up)
+	msg = append(msg, bigEndianMsgConverter(uint32(len(query)+5))...)
 
-	b := make([]byte, 42)
+	msg = append(msg, query...)
 
-	globalConn.Write(start_up)
-
-	globalConn.Read(b)
-
-	fmt.Println(b)
-
-	Decode("AuthOptions", b)
-
+	return append(msg, 0)
 }

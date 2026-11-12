@@ -22,18 +22,18 @@ func main() {
 
 	conn, err := pg.Connect(connConfig)
 
-	defer conn.Disconnect()
-
 	if err != nil {
-		log.Fatalf("FATAL! : %x", err)
+		log.Fatalf("FATAL! : %v", err)
 	}
 
-	data, err := conn.Query("select * from my_table;")
+	defer conn.Disconnect()
+
+	_, err = conn.Query("select * from my_table;")
 
 	if err != nil {
 		log.Panic(err)
 	}
 
-	//...do something with the data WIP
+	//...do something with the data (WIP)
 
 }

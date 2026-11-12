@@ -11,10 +11,13 @@ func SCRAM256(password string, username string, salt []byte, iterations int) (st
 	client, err := scram.SHA256.NewClient(username, password, "")
 
 	if err != nil {
-		fmt.Println("Error creating SCRAM client:", err)
+		return "", fmt.Errorf("error creating SCRAM client: %w", err)
 	}
 
 	conv := client.NewConversation()
+	_ = conv // TODO: drive the SCRAM exchange with conv
+
+	return "", fmt.Errorf("SCRAM-SHA-256 not implemented yet")
 
 }
 
