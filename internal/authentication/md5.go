@@ -27,3 +27,7 @@ func MD5HashPassword(password string, username string, salt string) string {
 	return fmt.Sprintf("md5%s", hex.EncodeToString(secondHash[:]))
 
 }
+
+func generateSalt() string {
+	return ""
+}

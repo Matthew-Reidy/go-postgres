@@ -39,9 +39,11 @@ func AuthOptions(respMessage []byte) *AuthenticationMessage {
 
 	err := binary.Read(buff, binary.LittleEndian, &opCode)
 
-	if err != nil {
+	if err != nil || len(respMessage) < 10 {
 
-		log.Fatalln("cant decode! ", err)
+		log.Println("cant decode auth options: ", err)
+
+		return nil
 
 	}
 

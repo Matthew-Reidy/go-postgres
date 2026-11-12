@@ -10,6 +10,8 @@ type Credentials struct {
 }
 
 type SSL struct {
+	// optional path to a PEM bundle; when empty (or SSlConfig is nil)
+	// the operating system's trusted cert chain is used
 	Certificate string
 }
 
