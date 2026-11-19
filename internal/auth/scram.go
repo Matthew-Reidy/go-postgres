@@ -1,4 +1,4 @@
-package authentication
+package auth
 
 import (
 	"fmt"
@@ -22,9 +22,5 @@ func SCRAM256(password string, username string, salt []byte, iterations int) (st
 }
 
 func sendClientMessage() {
-
-}
-
-func recieveServerMessage() {
 
 }
