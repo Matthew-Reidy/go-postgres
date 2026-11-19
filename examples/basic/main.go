@@ -3,19 +3,19 @@ package main
 import (
 	"log"
 
-	pg "github.com/Matthew-Reidy/go-postgres"
-	pgtypes "github.com/Matthew-Reidy/go-postgres/types"
+	pg "github.com/Matthew-Reidy/go-postgres/internal"
+	"github.com/Matthew-Reidy/go-postgres/types"
 )
 
 func main() {
 
-	connConfig := &pgtypes.Credentials{
+	connConfig := &types.Credentials{
 		Username: "hello",
 		Password: "world",
 		Database: "mydb",
 		Host:     "myhost",
 		Port:     5432,
-		SSlConfig: &pgtypes.SSL{
+		SSlConfig: &types.SSL{
 			Certificate: "some/path/way/cert.pem",
 		},
 	}
